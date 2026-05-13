@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İştek — Türkiye'nin Hizmet Platformu</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="logo">
+      <span class="logo-mark">İ</span>
+      <span class="logo-text">ştek</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" onclick="showTab('uzmanlar')">Uzman Bul</a>
+      <a href="#" onclick="showTab('gorevler')">İlanlar</a>
+      <a href="#" onclick="showTab('nasil')">Nasıl Çalışır?</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-outline" onclick="showModal('giris')">Giriş Yap</button>
+      <button class="btn-primary" onclick="showModal('gorevOlustur')">İlan Ver</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">🇹🇷 Türkiye'nin #1 Hizmet Platformu</div>
+    <h1 class="hero-title">
+      Her işiniz için<br>
+      <span class="gradient-text">güvenilir uzman</span>
+    </h1>
+    <p class="hero-sub">Temizlikten tamirasa, nakliyeden boyaya — binlerce doğrulanmış uzmana dakikalar içinde ulaşın.</p>
+    
+    <div class="search-bar">
+      <input type="text" id="heroSearch" placeholder="Ne yaptırmak istiyorsunuz?" class="search-input">
+      <select id="heroSehir" class="search-select">
+        <option value="">Şehir Seçin</option>
+        {% for sehir in sehirler %}
+        <option value="{{ sehir }}">{{ sehir }}</option>
+        {% endfor %}
+      </select>
+      <button class="search-btn" onclick="heroAra()">Uzman Bul →</button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" id="stat-uzman">—</span><span class="stat-lbl">Uzman</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="stat-gorev">—</span><span class="stat-lbl">Tamamlanan İş</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="stat-puan">—</span><span class="stat-lbl">Ortalama Puan</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- KATEGORİLER -->
+<section class="section" id="kategoriler-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Kategoriler</h2>
+      <p>İhtiyacınız olan hizmet kategorisini seçin</p>
+    </div>
+    <div class="kategori-grid">
+      {% for k in kategoriler %}
+      <div class="kategori-kart" onclick="filterKategori('{{ k.id }}')" data-id="{{ k.id }}">
+        <span class="k-ikon">{{ k.ikon }}</span>
+        <span class="k-ad">{{ k.ad }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- TAB CONTENT -->
+<section class="section section-light" id="main-content">
+  <div class="container">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-uzmanlar" onclick="showTab('uzmanlar')">Uzmanlar</button>
+      <button class="tab-btn" id="tab-gorevler" onclick="showTab('gorevler')">Açık İlanlar</button>
+    </div>
+
+    <!-- Filtreler -->
+    <div class="filter-bar">
+      <select id="filterKategori" class="filter-select" onchange="loadContent()">
+        <option value="">Tüm Kategoriler</option>
+        {% for k in kategoriler %}
+        <option value="{{ k.id }}">{{ k.ikon }} {{ k.ad }}</option>
+        {% endfor %}
+      </select>
+      <select id="filterSehir" class="filter-select" onchange="loadContent()">
+        <option value="">Tüm Şehirler</option>
+        {% for sehir in sehirler %}
+        <option value="{{ sehir }}">{{ sehir }}</option>
+        {% endfor %}
+      </select>
+      <input type="text" id="filterArama" class="filter-input" placeholder="Uzman ara..." oninput="loadContent()">
+      <button class="btn-primary btn-sm" onclick="showModal('gorevOlustur')">+ Yeni İlan</button>
+    </div>
+
+    <div id="content-area" class="content-grid"></div>
+    <div id="loading" class="loading-state" style="display:none">Yükleniyor...</div>
+    <div id="bos-durum" class="empty-state" style="display:none">
+      <div class="empty-ikon">🔍</div>
+      <p>Sonuç bulunamadı. Filtreleri değiştirmeyi deneyin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NASIL ÇALIŞIR -->
+<section class="section" id="nasil">
+  <div class="container">
+    <div class="section-head">
+      <h2>Nasıl Çalışır?</h2>
+    </div>
+    <div class="adim-grid">
+      <div class="adim">
+        <div class="adim-no">1</div>
+        <div class="adim-ikon">📝</div>
+        <h3>İlan Verin</h3>
+        <p>Yaptırmak istediğiniz işi tanımlayın, bütçenizi belirtin ve şehrinizi seçin.</p>
+      </div>
+      <div class="adim-cizgi"></div>
+      <div class="adim">
+        <div class="adim-no">2</div>
+        <div class="adim-ikon">🤝</div>
+        <h3>Teklif Alın</h3>
+        <p>Doğrulanmış uzmanlar profilinizi görüp teklif gönderir, fiyatları karşılaştırın.</p>
+      </div>
+      <div class="adim-cizgi"></div>
+      <div class="adim">
+        <div class="adim-no">3</div>
+        <div class="adim-ikon">✅</div>
+        <h3>İşi Onaylayın</h3>
+        <p>En uygun uzmanı seçin, randevu belirleyin ve güvenli ödeme yapın.</p>
+      </div>
+      <div class="adim-cizgi"></div>
+      <div class="adim">
+        <div class="adim-no">4</div>
+        <div class="adim-ikon">⭐</div>
+        <h3>Değerlendirin</h3>
+        <p>İş bittikten sonra uzmanı puanlayın, topluluğa katkı sağlayın.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-mark">İ</span>
+          <span class="logo-text" style="color:white">ştek</span>
+        </div>
+        <p>Türkiye'nin güvenilir hizmet platformu</p>
+      </div>
+      <div class="footer-links">
+        <h4>Platform</h4>
+        <a href="#">Uzman Ol</a>
+        <a href="#">Güvenlik</a>
+        <a href="#">Fiyatlandırma</a>
+      </div>
+      <div class="footer-links">
+        <h4>Destek</h4>
+        <a href="#">Yardım Merkezi</a>
+        <a href="#">İletişim</a>
+        <a href="#">SSS</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 İştek Platform A.Ş. · Tüm hakları saklıdır.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- MODALLER -->
+
+<!-- Görev Oluştur Modal -->
+<div id="modal-gorevOlustur" class="modal-overlay" onclick="closeModal('gorevOlustur')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h3>Yeni İlan Oluştur</h3>
+      <button class="modal-close" onclick="closeModal('gorevOlustur')">✕</button>
+    </div>
+    <form id="gorevForm">
+      <div class="form-group">
+        <label>İş Başlığı</label>
+        <input type="text" id="g-baslik" placeholder="Örn: 3+1 daire temizliği" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kategori</label>
+          <select id="g-kategori">
+            {% for k in kategoriler %}
+            <option value="{{ k.id }}">{{ k.ikon }} {{ k.ad }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Şehir</label>
+          <select id="g-sehir">
+            {% for sehir in sehirler %}
+            <option value="{{ sehir }}">{{ sehir }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Bütçe (₺)</label>
+        <input type="number" id="g-butce" placeholder="Örn: 500" min="50">
+      </div>
+      <div class="form-group">
+        <label>Açıklama</label>
+        <textarea id="g-aciklama" rows="4" placeholder="İşin detaylarını belirtin..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Adınız</label>
+        <input type="text" id="g-musteri" placeholder="Ad Soyad">
+      </div>
+      <button type="submit" class="btn-primary btn-full">İlanı Yayınla →</button>
+    </form>
+  </div>
+</div>
+
+<!-- Uzman Detay Modal -->
+<div id="modal-uzmanDetay" class="modal-overlay" onclick="closeModal('uzmanDetay')">
+  <div class="modal-box modal-wide" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h3 id="ud-ad">Uzman Profili</h3>
+      <button class="modal-close" onclick="closeModal('uzmanDetay')">✕</button>
+    </div>
+    <div id="uzman-detay-icerik"></div>
+  </div>
+</div>
+
+<!-- Giriş Modal -->
+<div id="modal-giris" class="modal-overlay" onclick="closeModal('giris')">
+  <div class="modal-box modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h3>Giriş Yap</h3>
+      <button class="modal-close" onclick="closeModal('giris')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>E-posta</label>
+      <input type="email" placeholder="ornek@mail.com">
+    </div>
+    <div class="form-group">
+      <label>Şifre</label>
+      <input type="password" placeholder="••••••••">
+    </div>
+    <button class="btn-primary btn-full" onclick="closeModal('giris')">Giriş Yap</button>
+    <p style="text-align:center;margin-top:1rem;font-size:14px;color:#888">Hesabınız yok mu? <a href="#" style="color:var(--primary)">Üye Ol</a></p>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

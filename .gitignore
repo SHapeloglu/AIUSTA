@@ -1,0 +1,59 @@
+# ╔══════════════════════════════════════════╗
+# ║  İştek Platform — .gitignore            ║
+# ╚══════════════════════════════════════════╝
+
+# ── Ortam değişkenleri (ASLA commit etme!) ─
+.env
+.env.local
+.env.production
+*.env
+
+# ── Kimlik belgeleri (hassas veri!) ────────
+kimlik_belgeleri/
+
+# ── Yüklenen dosyalar ──────────────────────
+static/uploads/
+
+# ── Python ─────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ── Sanal ortam ────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+
+# ── IDE ────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Log dosyaları ──────────────────────────
+*.log
+logs/
+
+# ── Veritabanı yedekleri ───────────────────
+*.sql
+*.dump
+*.sqlite3
+
+# ── Test çıktıları ─────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Geçici dosyalar ────────────────────────
+tmp/
+temp/
+*.tmp

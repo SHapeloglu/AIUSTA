@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — İştek</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#E53935;--primary-dark:#B71C1C;--bg:#F8FAFC;--surface:#fff;--text:#1A1A2E;--muted:#6B7280;--border:#E5E7EB;--r:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+/* Sidebar */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 0;display:flex;flex-direction:column;}
+.sb-logo{padding:0 20px 24px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.sb-logo-mark{width:36px;height:36px;background:var(--primary);color:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:18px;}
+.sb-logo-text{font-family:'Sora',sans-serif;font-weight:700;font-size:18px;}
+.sb-menu{padding:0 12px;flex:1;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);cursor:pointer;transition:all .15s;font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;margin-bottom:2px;}
+.sb-item:hover,.sb-item.aktif{background:#FFF5F5;color:var(--primary);}
+.sb-item .ic{font-size:16px;width:20px;text-align:center;}
+.sb-badge{background:var(--primary);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;margin-left:auto;}
+.sb-user{padding:16px 20px;border-top:1px solid var(--border);margin-top:auto;}
+.sb-user-ad{font-weight:600;font-size:14px;}
+.sb-user-rol{font-size:12px;color:var(--muted);margin-top:2px;text-transform:capitalize;}
+.sb-cikis{font-size:13px;color:#dc2626;cursor:pointer;margin-top:8px;background:none;border:none;font-family:'DM Sans',sans-serif;}
+/* Ana içerik */
+.main{padding:32px;overflow-y:auto;}
+.page{display:none;} .page.aktif{display:block;}
+.page-title{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;margin-bottom:24px;}
+/* Metrik kartlar */
+.metrik-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:32px;}
+.metrik-kart{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+.m-val{font-family:'Sora',sans-serif;font-weight:800;font-size:28px;color:var(--primary);}
+.m-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+/* Listeler */
+.kart{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px;}
+.kart-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.kart-head h3{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;}
+.kart-body{padding:20px;}
+/* İlan listesi */
+.ilan-liste{display:flex;flex-direction:column;gap:12px;}
+.ilan-row{border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;transition:box-shadow .2s;}
+.ilan-row:hover{box-shadow:0 4px 12px rgba(0,0,0,.06);}
+.ilan-baslik{font-weight:600;font-size:15px;margin-bottom:4px;}
+.ilan-meta{font-size:12px;color:var(--muted);}
+.durum{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+.durum.aktif{background:#DCFCE7;color:#166534;}
+.durum.tamamlandi{background:#DBEAFE;color:#1E40AF;}
+.durum.iptal{background:#FEE2E2;color:#991B1B;}
+/* Form */
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn{padding:11px 24px;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;}
+.btn-primary{background:var(--primary);color:white;} .btn-primary:hover{background:var(--primary-dark);}
+.btn-sm{padding:7px 14px;font-size:12px;}
+/* Bildirimler */
+.bildirim-liste{display:flex;flex-direction:column;}
+.bil-row{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;cursor:pointer;transition:background .15s;}
+.bil-row:hover{background:var(--bg);}
+.bil-row.okunmamis{background:#FFF5F5;}
+.bil-ikon{width:36px;height:36px;border-radius:50%;background:#FFF5F5;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.bil-baslik{font-size:14px;font-weight:600;margin-bottom:2px;}
+.bil-metin{font-size:13px;color:var(--muted);}
+.bil-tarih{font-size:11px;color:#bbb;margin-top:4px;}
+/* Ödeme */
+.odeme-row{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.odeme-row:last-child{border-bottom:none;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1A1A2E;color:white;padding:12px 24px;border-radius:8px;font-size:14px;z-index:999;transition:transform .3s;}
+.toast.goster{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">İ</div>
+      <div class="sb-logo-text">ştek</div>
+    </div>
+    <nav class="sb-menu" id="sidebar-menu"></nav>
+    <div class="sb-user">
+      <div class="sb-user-ad" id="sb-ad">{{ kullanici_ad }}</div>
+      <div class="sb-user-rol" id="sb-rol">{{ kullanici_rol }}</div>
+      <button class="sb-cikis" onclick="cikisYap()">→ Çıkış Yap</button>
+    </div>
+  </aside>
+
+  <!-- ANA İÇERİK -->
+  <main class="main" id="main-content">
+    <!-- Yükleniyor -->
+    <div id="page-yukluyor" class="page aktif">
+      <div style="text-align:center;padding:80px;color:var(--muted)">Yükleniyor...</div>
+    </div>
+
+    <!-- Özet -->
+    <div id="page-ozet" class="page">
+      <div class="page-title" id="ozet-baslik">Hoş Geldiniz</div>
+      <div class="metrik-grid" id="metrik-grid"></div>
+      <div class="kart">
+        <div class="kart-head"><h3>Son İlanlarım</h3><button class="btn btn-primary btn-sm" onclick="gosterSayfa('page-ilanlar')">Tümünü Gör</button></div>
+        <div class="kart-body"><div id="son-ilanlar" class="ilan-liste"></div></div>
+      </div>
+    </div>
+
+    <!-- İlanlar -->
+    <div id="page-ilanlar" class="page">
+      <div class="page-title">İlanlarım</div>
+      <div class="kart" id="yeni-ilan-formu" style="margin-bottom:20px;">
+        <div class="kart-head"><h3>Yeni İlan Oluştur</h3></div>
+        <div class="kart-body">
+          <div class="form-row">
+            <div class="form-group"><label>İş Başlığı</label><input type="text" id="il-baslik" placeholder="Örn: 3+1 daire temizliği"></div>
+            <div class="form-group"><label>Kategori</label>
+              <select id="il-kategori">
+                <option value="temizlik">🧹 Ev Temizliği</option><option value="tamirat">🔧 Tamirat</option>
+                <option value="nakliyat">🚚 Nakliyat</option><option value="bahce">🌿 Bahçe</option>
+                <option value="boya">🎨 Boya</option><option value="elektrik">⚡ Elektrik</option>
+                <option value="tesisaat">🚿 Tesisat</option><option value="klima">❄️ Klima</option><option value="diger">📦 Diğer</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Şehir</label>
+              <select id="il-sehir">
+                <option>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Bursa</option>
+                <option>Antalya</option><option>Adana</option><option>Konya</option><option>Gaziantep</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Bütçe (₺)</label><input type="number" id="il-butce" placeholder="500" min="50"></div>
+          </div>
+          <div class="form-group"><label>Açıklama</label><textarea id="il-aciklama" rows="3" placeholder="İş detaylarını açıklayın..."></textarea></div>
+          <button class="btn btn-primary" onclick="ilanOlustur()">İlanı Yayınla →</button>
+        </div>
+      </div>
+      <div class="kart">
+        <div class="kart-head"><h3>Tüm İlanlarım</h3></div>
+        <div class="kart-body"><div id="tum-ilanlar" class="ilan-liste"></div></div>
+      </div>
+    </div>
+
+    <!-- Teklifler (uzman) -->
+    <div id="page-teklifler" class="page">
+      <div class="page-title">Aktif İlanlar & Teklif Ver</div>
+      <div id="acik-ilanlar" class="ilan-liste"></div>
+    </div>
+
+    <!-- Ödemeler -->
+    <div id="page-odemeler" class="page">
+      <div class="page-title">Ödeme Geçmişi</div>
+      <div class="kart">
+        <div class="kart-body">
+          <div id="odeme-liste"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bildirimler -->
+    <div id="page-bildirimler" class="page">
+      <div class="page-title">Bildirimler</div>
+      <div class="kart">
+        <div class="bil-head" style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:flex-end;">
+          <button class="btn btn-sm btn-primary" onclick="hepsiniOku()">Tümünü Okundu İşaretle</button>
+        </div>
+        <div id="bildirim-liste" class="bildirim-liste"></div>
+      </div>
+    </div>
+
+    <!-- Profil -->
+    <div id="page-profil" class="page">
+      <div class="page-title">Profilim</div>
+      <div class="kart">
+        <div class="kart-body">
+          <div class="form-row">
+            <div class="form-group"><label>Ad Soyad</label><input type="text" id="p-ad"></div>
+            <div class="form-group"><label>Telefon</label><input type="tel" id="p-tel"></div>
+          </div>
+          <div class="form-group"><label>Şehir</label>
+            <select id="p-sehir">
+              <option>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Bursa</option><option>Antalya</option>
+            </select>
+          </div>
+          <div id="uzman-profil-alanlari" style="display:none">
+            <div class="form-row">
+              <div class="form-group"><label>Saatlik Ücret (₺)</label><input type="number" id="p-ucret"></div>
+              <div class="form-group"><label>Müsaitlik</label>
+                <select id="p-uygunluk"><option value="1">✅ Müsaitem</option><option value="0">❌ Müsait Değilim</option></select>
+              </div>
+            </div>
+            <div class="form-group"><label>Hakkımda</label><textarea id="p-aciklama" rows="4"></textarea></div>
+          </div>
+          <button class="btn btn-primary" onclick="profilGuncelle()">Kaydet</button>
+
+          <hr style="margin:24px 0;border:none;border-top:1px solid var(--border)">
+          <h4 style="font-family:'Sora',sans-serif;margin-bottom:16px;">Şifre Değiştir</h4>
+          <div class="form-row">
+            <div class="form-group"><label>Mevcut Şifre</label><input type="password" id="s-eski"></div>
+            <div class="form-group"><label>Yeni Şifre</label><input type="password" id="s-yeni"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="sifreDegistir()">Şifreyi Güncelle</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let kullanici = null;
+
+// ─── XSS KORUMASI ────────────────────────────────────────────────────────────
+// Tüm kullanıcı verilerini DOMPurify ile temizleyerek innerHTML'e yaz.
+// Metin içeriği için textContent kullanılır (daha güvenli).
+
+function escHtml(str) {
+  // DOMPurify mevcutsa kullan, yoksa basit escape
+  if (typeof DOMPurify !== 'undefined') {
+    return DOMPurify.sanitize(str || '', { ALLOWED_TAGS: [] });
+  }
+  return (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function guvenliHtml(html) {
+  // HTML içerik için DOMPurify ile temizle
+  if (typeof DOMPurify !== 'undefined') {
+    return DOMPurify.sanitize(html || '');
+  }
+  return escHtml(html);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+let toastTimer;
+
+const MENU_MUSTERI = [
+  {id:'page-ozet', ikon:'🏠', ad:'Özet'},
+  {id:'page-ilanlar', ikon:'📋', ad:'İlanlarım'},
+  {id:'page-odemeler', ikon:'💳', ad:'Ödemeler'},
+  {id:'page-bildirimler', ikon:'🔔', ad:'Bildirimler'},
+  {id:'page-profil', ikon:'👤', ad:'Profil'},
+  {href:'/chat', ikon:'💬', ad:'Mesajlar'},
+  {href:'/', ikon:'🌐', ad:'Ana Sayfa'},
+];
+const MENU_UZMAN = [
+  {id:'page-ozet', ikon:'🏠', ad:'Özet'},
+  {id:'page-teklifler', ikon:'📋', ad:'Teklif Ver'},
+  {id:'page-odemeler', ikon:'💳', ad:'Kazançlarım'},
+  {id:'page-bildirimler', ikon:'🔔', ad:'Bildirimler'},
+  {id:'page-profil', ikon:'👤', ad:'Profil'},
+  {href:'/chat', ikon:'💬', ad:'Mesajlar'},
+  {href:'/', ikon:'🌐', ad:'Ana Sayfa'},
+];
+
+async function init() {
+  const res  = await fetch('/auth/ben');
+  const data = await res.json();
+  if (!data.giris) { window.location.href='/giris'; return; }
+  kullanici = data.kullanici;
+
+  const menu = kullanici.rol==='uzman' ? MENU_UZMAN : MENU_MUSTERI;
+  const sb   = document.getElementById('sidebar-menu');
+  sb.innerHTML = menu.map(m => m.href
+    ? `<a class="sb-item" href="${m.href}"><span class="ic">${m.ikon}</span>${m.ad}</a>`
+    : `<div class="sb-item" id="menu-${m.id}" onclick="gosterSayfa('${m.id}')"><span class="ic">${m.ikon}</span>${m.ad}${m.badge?'<span class="sb-badge" id="badge-'+m.id+'">0</span>':''}</div>`
+  ).join('');
+
+  document.getElementById('sb-ad').textContent  = kullanici.ad_soyad;
+  document.getElementById('sb-rol').textContent = kullanici.rol==='musteri' ? 'Müşteri' : (kullanici.rol==='uzman' ? 'Uzman' : 'Admin');
+
+  gosterSayfa('page-ozet');
+  yukleOzet();
+  yukleOdeme();
+  yukleBldirimler();
+  if (kullanici.rol === 'musteri') yukleIlanlar();
+  else yukleAcikIlanlar();
+  yukleProfilForm();
+}
+
+function gosterSayfa(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('aktif'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('aktif'));
+  document.getElementById(id)?.classList.add('aktif');
+  document.getElementById('menu-'+id)?.classList.add('aktif');
+}
+
+async function yukleOzet() {
+  const rol = kullanici.rol;
+  let metriks = [];
+
+  if (rol === 'musteri') {
+    const ilanlar = await (await fetch('/api/ilanlar')).json();
+    const benim   = ilanlar.filter(i => i.musteri_id === kullanici.id || i.musteri_ad === kullanici.ad_soyad);
+    metriks = [
+      {val: benim.length, lbl: 'Toplam İlanım'},
+      {val: benim.filter(i=>i.durum==='aktif').length, lbl: 'Aktif İlan'},
+      {val: benim.reduce((a,i)=>a+(i.teklifSayisi||0),0), lbl: 'Gelen Teklif'},
+      {val: benim.filter(i=>i.durum==='tamamlandi').length, lbl: 'Tamamlanan'},
+    ];
+    document.getElementById('son-ilanlar').innerHTML = benim.slice(0,3).map(ilanHtml).join('') || '<p style="color:var(--muted)">Henüz ilanınız yok.</p>';
+  } else {
+    const profil = kullanici.profil || {};
+    metriks = [
+      {val: profil.puan || 0, lbl: 'Ortalama Puan ⭐'},
+      {val: profil.is_tamamlanan || 0, lbl: 'Tamamlanan İş'},
+      {val: profil.onaylandi ? '✅' : '⏳', lbl: 'Hesap Durumu'},
+      {val: profil.uygunluk ? '🟢' : '🔴', lbl: 'Müsaitlik'},
+    ];
+    document.getElementById('yeni-ilan-formu')?.remove();
+  }
+
+  document.getElementById('metrik-grid').innerHTML = metriks.map(m =>
+    `<div class="metrik-kart"><div class="m-val">${m.val}</div><div class="m-lbl">${m.lbl}</div></div>`
+  ).join('');
+}
+
+async function yukleIlanlar() {
+  const ilanlar = await (await fetch('/api/ilanlar')).json();
+  const html    = ilanlar.length ? ilanlar.map(ilanHtml).join('') : '<p style="color:var(--muted)">Henüz ilan yok.</p>';
+  document.getElementById('tum-ilanlar').innerHTML  = html;
+  document.getElementById('son-ilanlar').innerHTML  = ilanlar.slice(0,3).map(ilanHtml).join('') || '<p style="color:var(--muted)">Henüz ilanınız yok.</p>';
+}
+
+async function yukleAcikIlanlar() {
+  const ilanlar = await (await fetch('/api/ilanlar')).json();
+  document.getElementById('acik-ilanlar').innerHTML = ilanlar.map(ilan => `
+    <div class="ilan-row">
+      <div>
+        <div class="ilan-baslik">${ilan.baslik}</div>
+        <div class="ilan-meta">📍 ${ilan.sehir} · ₺${ilan.butce} · ${ilan.teklifSayisi} teklif</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:700;color:var(--primary);margin-bottom:8px">₺${ilan.butce}</div>
+        <button class="btn btn-primary btn-sm" onclick="teklifModal('${ilan.id}','${ilan.baslik.replace(/'/g,"\\'")}',${ilan.butce})">Teklif Ver</button>
+      </div>
+    </div>`).join('') || '<p style="color:var(--muted)">Aktif ilan yok.</p>';
+}
+
+function ilanHtml(ilan) {
+  const durumKlas = ilan.durum==='aktif' ? 'aktif' : (ilan.durum==='tamamlandi' ? 'tamamlandi' : 'iptal');
+  // escHtml ile XSS koruması — kullanıcı verisi doğrudan HTML'e eklenmez
+  return `<div class="ilan-row">
+    <div><div class="ilan-baslik">${escHtml(ilan.baslik)}</div>
+    <div class="ilan-meta">📍 ${escHtml(ilan.sehir)} · ₺${parseInt(ilan.butce)||0} · ${parseInt(ilan.teklifSayisi)||0} teklif</div></div>
+    <span class="durum ${durumKlas}">${escHtml(ilan.durum)}</span>
+  </div>`;
+}
+
+async function ilanOlustur() {
+  const body = {
+    baslik:   document.getElementById('il-baslik').value.trim(),
+    kategori: document.getElementById('il-kategori').value,
+    sehir:    document.getElementById('il-sehir').value,
+    butce:    parseInt(document.getElementById('il-butce').value||0),
+    aciklama: document.getElementById('il-aciklama').value,
+  };
+  if (!body.baslik) { toast('⚠️ Başlık zorunlu'); return; }
+  const res  = await fetch('/api/ilanlar', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data = await res.json();
+  if (data.basarili) { toast('✅ İlan yayınlandı!'); yukleIlanlar(); }
+  else toast('❌ ' + (data.hata || 'Hata'));
+}
+
+async function teklifModal(ilanId, baslik, butce) {
+  // escHtml ile XSS önleme
+  const fiyat = prompt(`"${escHtml(baslik)}" ilanı için teklifiniz (₺):\n(İlan bütçesi: ₺${parseInt(butce)||0})`);
+  if (!fiyat) return;
+  const mesaj = prompt('Müşteriye mesajınız:') || '';
+  const res   = await fetch('/api/teklif', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ilan_id:ilanId, fiyat:parseInt(fiyat), mesaj})
+  });
+  const data = await res.json();
+  toast(data.basarili ? '✅ Teklifiniz gönderildi!' : ('❌ ' + (data.hata||'Hata')));
+}
+
+async function yukleOdeme() {
+  const rows = await (await fetch('/odeme/gecmis')).json();
+  if (!Array.isArray(rows)) return;
+  document.getElementById('odeme-liste').innerHTML = rows.length ? rows.map(o => `
+    <div class="odeme-row">
+      <div><div style="font-weight:600;font-size:14px">${o.ilan_baslik||'-'}</div>
+      <div style="font-size:12px;color:var(--muted)">${o.tarih?.slice(0,10)||''}</div></div>
+      <div style="font-size:13px;color:var(--muted)">${o.musteri_ad||o.uzman_ad||''}</div>
+      <span class="durum ${o.durum==='onaylandi'?'tamamlandi':(o.durum==='basarisiz'?'iptal':'aktif')}">${o.durum}</span>
+      <div style="font-weight:700;color:var(--primary)">₺${o.tutar}</div>
+    </div>`).join('') : '<p style="color:var(--muted);text-align:center;padding:20px">Henüz ödeme işlemi yok.</p>';
+}
+
+async function yukleBldirimler() {
+  const rows = await (await fetch('/api/bildirimler')).json();
+  if (!Array.isArray(rows)) return;
+  const bilTipIkon = {odeme:'💳',teklif:'📋',mesaj:'💬',sistem:'⚙️'};
+  document.getElementById('bildirim-liste').innerHTML = rows.length ? rows.map(b => `
+    <div class="bil-row ${b.okundu?'':'okunmamis'}">
+      <div class="bil-ikon">${bilTipIkon[b.tip]||'🔔'}</div>
+      <div><div class="bil-baslik">${b.baslik||''}</div>
+      <div class="bil-metin">${b.metin||''}</div>
+      <div class="bil-tarih">${b.tarih?.slice(0,16)||''}</div></div>
+    </div>`).join('') : '<p style="color:var(--muted);padding:20px;text-align:center">Bildirim yok.</p>';
+}
+
+async function hepsiniOku() {
+  await fetch('/api/bildirimler/okundu',{method:'POST'});
+  yukleBldirimler();
+  toast('✅ Tümü okundu olarak işaretlendi');
+}
+
+function yukleProfilForm() {
+  document.getElementById('p-ad').value  = kullanici.ad_soyad||'';
+  document.getElementById('p-tel').value = kullanici.telefon||'';
+  document.getElementById('p-sehir').value = kullanici.sehir||'İstanbul';
+  if (kullanici.rol==='uzman') {
+    document.getElementById('uzman-profil-alanlari').style.display='block';
+    const p = kullanici.profil||{};
+    document.getElementById('p-ucret').value    = p.saatlik_ucret||'';
+    document.getElementById('p-aciklama').value = p.aciklama||'';
+    document.getElementById('p-uygunluk').value = p.uygunluk ? '1' : '0';
+  }
+}
+
+async function profilGuncelle() {
+  const body = {
+    ad_soyad: document.getElementById('p-ad').value,
+    telefon:  document.getElementById('p-tel').value,
+    sehir:    document.getElementById('p-sehir').value,
+    saatlik_ucret: parseInt(document.getElementById('p-ucret')?.value||0),
+    aciklama:  document.getElementById('p-aciklama')?.value,
+    uygunluk:  document.getElementById('p-uygunluk')?.value==='1' ? 1 : 0,
+  };
+  const res = await fetch('/auth/profil-guncelle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d = await res.json();
+  toast(d.basarili ? '✅ Profil güncellendi' : '❌ '+(d.hata||'Hata'));
+}
+
+async function sifreDegistir() {
+  const body = {eski_sifre:document.getElementById('s-eski').value, yeni_sifre:document.getElementById('s-yeni').value};
+  if (!body.yeni_sifre || body.yeni_sifre.length < 6) { toast('⚠️ Yeni şifre min. 6 karakter olmalı'); return; }
+  const res = await fetch('/auth/sifre-degistir',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d = await res.json();
+  toast(d.basarili ? '✅ Şifre değiştirildi' : '❌ '+(d.hata||'Hata'));
+  if (d.basarili) { document.getElementById('s-eski').value=''; document.getElementById('s-yeni').value=''; }
+}
+
+async function cikisYap() {
+  await fetch('/auth/cikis',{method:'POST'});
+  window.location.href='/';
+}
+
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('goster');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('goster'),3000);
+}
+
+init();
+</script>
+</body>
+</html>

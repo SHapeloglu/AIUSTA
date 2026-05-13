@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Giriş / Kayıt — İştek</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#E53935;--primary-dark:#B71C1C;--bg:#FAFAFA;--text:#1A1A2E;--muted:#6B7280;--border:#E5E7EB;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.wrap{width:100%;max-width:420px;padding:24px;}
+.logo{text-align:center;margin-bottom:32px;}
+.logo-mark{display:inline-flex;width:48px;height:48px;background:var(--primary);color:white;border-radius:14px;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:22px;margin-bottom:8px;}
+.logo-text{font-family:'Sora',sans-serif;font-weight:700;font-size:24px;color:var(--text);}
+.card{background:white;border-radius:var(--radius);padding:32px;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+.tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:28px;}
+.tab{flex:1;padding:10px;border:none;background:transparent;border-radius:8px;font-family:'Sora',sans-serif;font-weight:600;font-size:14px;cursor:pointer;color:#6B7280;transition:all .2s;}
+.tab.active{background:white;color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text);}
+.form-group input,.form-group select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rol-secici{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.rol-kart{border:1.5px solid var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;}
+.rol-kart:hover,.rol-kart.aktif{border-color:var(--primary);background:#FFF5F5;}
+.rol-kart .rol-ikon{font-size:28px;display:block;margin-bottom:6px;}
+.rol-kart .rol-ad{font-size:13px;font-weight:600;color:var(--text);}
+.rol-kart .rol-alt{font-size:11px;color:var(--muted);margin-top:2px;}
+.btn{width:100%;padding:14px;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;cursor:pointer;transition:all .2s;margin-top:8px;}
+.btn-primary{background:var(--primary);color:white;}
+.btn-primary:hover{background:var(--primary-dark);}
+.hata{background:#FFF5F5;color:#B71C1C;border-radius:8px;padding:12px 16px;font-size:14px;margin-bottom:16px;display:none;}
+.basari{background:#F0FDF4;color:#166534;border-radius:8px;padding:12px 16px;font-size:14px;margin-bottom:16px;display:none;}
+.alt-link{text-align:center;margin-top:16px;font-size:14px;color:var(--muted);}
+.alt-link a{color:var(--primary);text-decoration:none;font-weight:500;}
+.uzman-ekstra{display:none;}
+.uzman-ekstra.goster{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-mark">İ</div>
+    <div class="logo-text">ştek</div>
+  </div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="sekmeAc('giris')">Giriş Yap</button>
+      <button class="tab" onclick="sekmeAc('kayit')">Üye Ol</button>
+    </div>
+
+    <div id="hata-kutu" class="hata"></div>
+    <div id="basari-kutu" class="basari"></div>
+
+    <!-- GİRİŞ FORMU -->
+    <div id="form-giris">
+      <div class="form-group">
+        <label>E-posta</label>
+        <input type="email" id="g-email" placeholder="ornek@mail.com">
+      </div>
+      <div class="form-group">
+        <label>Şifre</label>
+        <input type="password" id="g-sifre" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" onclick="girisYap()">Giriş Yap</button>
+      <div class="alt-link" style="margin-top:12px;font-size:12px;color:#999">
+        Test hesapları: musteri@demo.com / demo123 &nbsp;|&nbsp; mehmet@demo.com / demo123
+      </div>
+    </div>
+
+    <!-- KAYIT FORMU -->
+    <div id="form-kayit" style="display:none">
+      <div class="form-group">
+        <label>Hesap Türü</label>
+        <div class="rol-secici">
+          <div class="rol-kart aktif" onclick="rolSec('musteri',this)">
+            <span class="rol-ikon">🛍️</span>
+            <div class="rol-ad">Müşteri</div>
+            <div class="rol-alt">Hizmet almak istiyorum</div>
+          </div>
+          <div class="rol-kart" onclick="rolSec('uzman',this)">
+            <span class="rol-ikon">🔧</span>
+            <div class="rol-ad">Uzman</div>
+            <div class="rol-alt">Hizmet vermek istiyorum</div>
+          </div>
+        </div>
+        <input type="hidden" id="k-rol" value="musteri">
+      </div>
+      <div class="form-group">
+        <label>Ad Soyad</label>
+        <input type="text" id="k-ad" placeholder="Ad Soyad">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>E-posta</label>
+          <input type="email" id="k-email" placeholder="mail@site.com">
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="tel" id="k-telefon" placeholder="05XX XXX XX XX">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Şehir</label>
+          <select id="k-sehir">
+            <option value="">Seçin</option>
+            <option>İstanbul</option><option>Ankara</option><option>İzmir</option>
+            <option>Bursa</option><option>Antalya</option><option>Adana</option>
+            <option>Konya</option><option>Gaziantep</option><option>Mersin</option>
+            <option>Kayseri</option><option>Eskişehir</option><option>Trabzon</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Şifre</label>
+          <input type="password" id="k-sifre" placeholder="Min. 6 karakter">
+        </div>
+      </div>
+
+      <!-- Uzman ek alanlar -->
+      <div id="uzman-ekstra" class="uzman-ekstra">
+        <div class="form-group">
+          <label>Uzmanlık Kategorisi</label>
+          <select id="k-kategori">
+            <option value="temizlik">🧹 Ev Temizliği</option>
+            <option value="tamirat">🔧 Tamirat & Montaj</option>
+            <option value="nakliyat">🚚 Nakliyat</option>
+            <option value="bahce">🌿 Bahçe & Peyzaj</option>
+            <option value="boya">🎨 Boya & Badana</option>
+            <option value="elektrik">⚡ Elektrik</option>
+            <option value="tesisaat">🚿 Tesisat</option>
+            <option value="klima">❄️ Klima & Isıtma</option>
+            <option value="diger">📦 Diğer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Saatlik Ücret (₺)</label>
+          <input type="number" id="k-ucret" placeholder="Örn: 200" min="50">
+        </div>
+        <div class="form-group">
+          <label>Hakkınızda</label>
+          <textarea id="k-aciklama" rows="3" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:vertical;" placeholder="Deneyimlerinizi ve uzmanlık alanlarınızı belirtin..."></textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="kayitOl()">Üye Ol →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let seciliRol = 'musteri';
+
+function sekmeAc(sekme) {
+  document.getElementById('form-giris').style.display  = sekme==='giris' ? 'block' : 'none';
+  document.getElementById('form-kayit').style.display  = sekme==='kayit' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===(sekme==='giris'?0:1)));
+  hataTemizle();
+}
+
+function rolSec(rol, el) {
+  seciliRol = rol;
+  document.getElementById('k-rol').value = rol;
+  document.querySelectorAll('.rol-kart').forEach(k => k.classList.remove('aktif'));
+  el.classList.add('aktif');
+  document.getElementById('uzman-ekstra').classList.toggle('goster', rol==='uzman');
+}
+
+function hataGoster(msg) {
+  const el = document.getElementById('hata-kutu');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('basari-kutu').style.display = 'none';
+}
+function basariGoster(msg) {
+  const el = document.getElementById('basari-kutu');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('hata-kutu').style.display = 'none';
+}
+function hataTemizle() {
+  document.getElementById('hata-kutu').style.display = 'none';
+  document.getElementById('basari-kutu').style.display = 'none';
+}
+
+async function girisYap() {
+  hataTemizle();
+  const email = document.getElementById('g-email').value.trim();
+  const sifre = document.getElementById('g-sifre').value;
+  if (!email || !sifre) { hataGoster('Lütfen tüm alanları doldurun.'); return; }
+
+  const res = await fetch('/auth/giris', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({email, sifre})
+  });
+  const data = await res.json();
+  if (data.basarili) {
+    window.location.href = '/dashboard';
+  } else {
+    hataGoster(data.hata || 'Giriş başarısız.');
+  }
+}
+
+async function kayitOl() {
+  hataTemizle();
+  const body = {
+    ad_soyad:    document.getElementById('k-ad').value.trim(),
+    email:       document.getElementById('k-email').value.trim(),
+    sifre:       document.getElementById('k-sifre').value,
+    telefon:     document.getElementById('k-telefon').value,
+    sehir:       document.getElementById('k-sehir').value,
+    rol:         seciliRol,
+    kategori:    document.getElementById('k-kategori')?.value,
+    saatlik_ucret: parseInt(document.getElementById('k-ucret')?.value||0),
+    aciklama:    document.getElementById('k-aciklama')?.value,
+  };
+  if (!body.ad_soyad || !body.email || !body.sifre) {
+    hataGoster('Ad, e-posta ve şifre zorunludur.'); return;
+  }
+
+  const res = await fetch('/auth/kayit', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (data.basarili) {
+    basariGoster('Hesabınız oluşturuldu! Yönlendiriliyorsunuz...');
+    setTimeout(() => window.location.href='/dashboard', 1200);
+  } else {
+    hataGoster(data.hata || 'Kayıt başarısız.');
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const aktif = document.getElementById('form-giris').style.display !== 'none';
+    aktif ? girisYap() : kayitOl();
+  }
+});
+</script>
+</body>
+</html>
